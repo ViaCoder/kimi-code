@@ -145,7 +145,7 @@ export async function runShell(
     startupNotice: configWarning,
     migrationPlan,
     migrateOnly: runOptions.migrateOnly,
-    telemetryDisabled: config.telemetry === false,
+    telemetryDisabled: config.telemetry !== true,
   });
 
   initializeCliTelemetry({

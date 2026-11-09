@@ -46,7 +46,7 @@ export function activateExtensionTelemetry(options: ExtensionTelemetryOptions): 
   initializeTelemetry({
     homeDir,
     deviceId,
-    enabled: config.telemetry !== false,
+    enabled: config.telemetry === true,
     initiallyEnabled: vscode.env.isTelemetryEnabled,
     appName: "kimi-code-vscode",
     version: options.version,
@@ -60,7 +60,7 @@ export function activateExtensionTelemetry(options: ExtensionTelemetryOptions): 
     onUnexpectedError: (error) => options.log(`Telemetry dropped a property: ${error.message}`),
   });
 
-  const staticallyEnabled = shouldEnableTelemetry({ enabled: config.telemetry !== false });
+  const staticallyEnabled = shouldEnableTelemetry({ enabled: config.telemetry === true });
   if (firstLaunch) track("first_launch");
 
   return vscode.env.onDidChangeTelemetryEnabled((enabled) => {

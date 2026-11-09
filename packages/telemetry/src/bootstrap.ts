@@ -5,6 +5,7 @@ import { AsyncTransport } from './transport';
 import type { TelemetryRegion, TelemetryRegionResolution } from './types';
 
 export const TELEMETRY_DISABLE_ENV = 'KIMI_DISABLE_TELEMETRY';
+export const TELEMETRY_ENABLE_ENV = 'KIMI_ENABLE_TELEMETRY';
 
 const TRUE_ENV_VALUES = new Set(['1', 'true', 't', 'yes', 'y']);
 
@@ -44,10 +45,16 @@ export function isTelemetryDisabledByEnv(env: NodeJS.ProcessEnv = process.env): 
   return value !== undefined && TRUE_ENV_VALUES.has(value.trim().toLowerCase());
 }
 
+export function isTelemetryEnabledByEnv(env: NodeJS.ProcessEnv = process.env): boolean {
+  const value = env[TELEMETRY_ENABLE_ENV];
+  return value !== undefined && TRUE_ENV_VALUES.has(value.trim().toLowerCase());
+}
+
 export function shouldEnableTelemetry(
   input: { readonly enabled?: boolean; readonly env?: NodeJS.ProcessEnv } = {},
 ): boolean {
-  return input.enabled !== false && !isTelemetryDisabledByEnv(input.env ?? process.env);
+  const env = input.env ?? process.env;
+  return (input.enabled === true || isTelemetryEnabledByEnv(env)) && !isTelemetryDisabledByEnv(env);
 }
 
 export function initializeTelemetry(options: TelemetryBootstrapOptions): void {

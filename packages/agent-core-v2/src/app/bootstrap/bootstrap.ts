@@ -1,4 +1,4 @@
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 
 import { join } from 'pathe';
@@ -23,6 +23,7 @@ export interface HostArgs {
   readonly requestHeaders: Readonly<Record<string, string>>;
   readonly displayName?: string;
   readonly replyStyleGuide?: string;
+  readonly promptAdd?: string;
   readonly nonInteractive?: boolean;
   readonly uiCapabilities?: readonly HostUiCapability[];
 }
@@ -33,20 +34,38 @@ export interface HostArgsInput {
   readonly requestHeaders?: Readonly<Record<string, string>>;
   readonly displayName?: string;
   readonly replyStyleGuide?: string;
+  readonly promptAdd?: string;
   readonly nonInteractive?: boolean;
   readonly uiCapabilities?: readonly HostUiCapability[];
 }
 
-export function resolveHostArgs(input: HostArgsInput | undefined): HostArgs {
+export function resolveHostArgs(
+  input: HostArgsInput | undefined,
+  env: NodeJS.ProcessEnv = process.env,
+): HostArgs {
   return {
     agentFiles: input?.agentFiles,
     skillDirs: input?.skillDirs,
     requestHeaders: input?.requestHeaders ?? {},
     displayName: input?.displayName,
     replyStyleGuide: input?.replyStyleGuide,
+    promptAdd: input?.promptAdd ?? readPromptAddFile(env),
     nonInteractive: input?.nonInteractive,
     uiCapabilities: input?.uiCapabilities,
   };
+}
+
+function readPromptAddFile(env: NodeJS.ProcessEnv): string | undefined {
+  const raw = env['PROMPT_ADD'];
+  if (raw === undefined || raw === '') return undefined;
+  const path = raw.startsWith('~/') ? join(homedir(), raw.slice(2)) : raw;
+  try {
+    const text = readFileSync(path, 'utf8').trim();
+    return text.length > 0 ? text : undefined;
+  } catch (error) {
+    process.stderr.write(`PROMPT_ADD file unreadable: ${String(error)} [${path}]\n`);
+    return undefined;
+  }
 }
 
 export interface IBootstrapOptions {
@@ -123,7 +142,7 @@ export function resolveBootstrapOptions(input: BootstrapInput): IBootstrapOption
     cwd: input.cwd ?? process.cwd(),
     env,
     clientIdentity: input.clientIdentity,
-    args: resolveHostArgs(input.args),
+    args: resolveHostArgs(input.args, env),
   };
 }
 

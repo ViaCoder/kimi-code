@@ -27,7 +27,7 @@ export function isEnvFlagEnabled(value: string | undefined): boolean {
 }
 
 export function isServerTelemetryDisabled(core: Scope): boolean {
-  if (core.accessor.get(IConfigService).get('telemetry') === false) return true;
+  if (core.accessor.get(IConfigService).get('telemetry') !== true) return true;
   return isEnvFlagEnabled(core.accessor.get(IBootstrapService).getEnv(TELEMETRY_DISABLE_ENV));
 }
 

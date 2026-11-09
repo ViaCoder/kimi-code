@@ -294,7 +294,9 @@ function makeFakeHarness() {
       IConfigService,
       {
         ready: Promise.resolve(),
-        get: vi.fn((section: string) => (section === 'defaultModel' ? 'k2' : undefined)),
+        get: vi.fn((section: string) =>
+          section === 'defaultModel' ? 'k2' : section === 'telemetry' ? true : undefined,
+        ),
         // `applyPrintModeConfigDefaults` inspects each section and fills unset
         // keys via the memory layer; an empty section means everything is unset.
         inspect: vi.fn(() => ({ value: {} })),

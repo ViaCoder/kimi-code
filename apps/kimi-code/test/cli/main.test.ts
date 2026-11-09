@@ -241,7 +241,7 @@ describe('main entry command handling', () => {
     mocks.flushDiagnosticLogs.mockResolvedValue(undefined);
   });
 
-  it('runs update preflight before starting the shell', async () => {
+  it('starts the shell without any update preflight', async () => {
     const opts = defaultOpts();
     mocks.validateOptions.mockReturnValue({ options: opts, uiMode: 'shell' });
     mocks.runUpdatePreflight.mockResolvedValue('continue');
@@ -251,10 +251,7 @@ describe('main entry command handling', () => {
 
     expect(exitCode).toBeNull();
     expect(validateOptions).toHaveBeenCalledWith(opts);
-    expect(runUpdatePreflight).toHaveBeenCalledWith('0.0.1-alpha.2', { track: expect.any(Function) });
-    expect(mocks.runUpdatePreflight.mock.invocationCallOrder[0]).toBeLessThan(
-      mocks.runShell.mock.invocationCallOrder[0]!,
-    );
+    expect(runUpdatePreflight).not.toHaveBeenCalled();
     expect(runShell).toHaveBeenCalledWith(opts, '0.0.1-alpha.2');
   });
 
@@ -270,10 +267,7 @@ describe('main entry command handling', () => {
     const exitCode = await runHandleMainCommand(opts);
 
     expect(exitCode).toBeNull();
-    expect(runUpdatePreflight).toHaveBeenCalledWith('0.0.1-alpha.2', {
-      track: expect.any(Function),
-      isTTY: false,
-    });
+    expect(runUpdatePreflight).not.toHaveBeenCalled();
     expect(runPrompt).toHaveBeenCalledWith(opts, '0.0.1-alpha.2');
     expect(runShell).not.toHaveBeenCalled();
   });
@@ -362,9 +356,7 @@ describe('main entry command handling', () => {
     const exitCode = await runHandleMainCommand(opts);
 
     expect(exitCode).toBeNull();
-    expect(runUpdatePreflight).toHaveBeenCalledWith('0.0.1-alpha.2', {
-      track: expect.any(Function),
-    });
+    expect(runUpdatePreflight).not.toHaveBeenCalled();
     expect(runShell).toHaveBeenCalledWith(opts, '0.0.1-alpha.2');
   });
 
@@ -380,34 +372,6 @@ describe('main entry command handling', () => {
     });
   });
 
-  it('runs the staged-swap check before bootstrap and skips startup when it relaunches', async () => {
-    mocks.maybeRelaunch.mockResolvedValueOnce(true);
-
-    main();
-
-    await waitForAssertion(() => {
-      expect(mocks.maybeRelaunch).toHaveBeenCalledTimes(1);
-    });
-    // Relaunched → the parent must sit on the child, never bootstrap.
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(mocks.createProgram).not.toHaveBeenCalled();
-  });
-
-  it('passes the runtime context to the staged-swap check', async () => {
-    main();
-
-    await waitForAssertion(() => {
-      expect(mocks.maybeRelaunch).toHaveBeenCalledWith(
-        expect.objectContaining({
-          exePath: process.execPath,
-          argv: process.argv,
-          currentVersion: '0.0.1-alpha.2',
-          isNative: false,
-        }),
-      );
-    });
-  });
-
   it('sets the process title during startup', () => {
     const originalTitle = process.title;
     try {
@@ -418,18 +382,6 @@ describe('main entry command handling', () => {
     } finally {
       process.title = originalTitle;
     }
-  });
-
-  it('exits early when update preflight requests process exit', async () => {
-    const opts = defaultOpts();
-    mocks.validateOptions.mockReturnValue({ options: opts, uiMode: 'shell' });
-    mocks.runUpdatePreflight.mockResolvedValue('exit');
-    mocks.runShell.mockResolvedValue(void 0);
-
-    const exitCode = await runHandleMainCommand(opts);
-
-    expect(exitCode).toBe(0);
-    expect(runShell).not.toHaveBeenCalled();
   });
 
   it('initializes and flushes telemetry around the upgrade command', async () => {

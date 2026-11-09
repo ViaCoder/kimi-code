@@ -912,6 +912,7 @@ export class AgentProfileService extends Disposable implements IAgentProfileServ
       skillActive: this.isToolActiveForProfile(profile, 'Skill'),
       productName: (await this.identity.resolved()).displayName,
       replyStyleGuide: this.bootstrap.args.replyStyleGuide,
+      promptAdd: this.bootstrap.args.promptAdd,
       notifyUserActive:
         this.notify.enabled &&
         this.isToolActiveForProfile(profile, NOTIFY_USER_TOOL_NAME),

@@ -179,11 +179,11 @@ export async function runV2Print(
   // user left unset are filled, in the memory layer.
   await applyPrintModeConfigDefaults(configService);
   const defaultModel = configService.get<string>('defaultModel') ?? undefined;
-  let configTelemetryEnabled = true;
+  let configTelemetryEnabled = false;
   try {
-    configTelemetryEnabled = configService.get('telemetry') !== false;
+    configTelemetryEnabled = configService.get('telemetry') === true;
   } catch {
-    configTelemetryEnabled = true;
+    configTelemetryEnabled = false;
   }
   const telemetryEnabled = shouldEnableTelemetry({ enabled: configTelemetryEnabled });
   for (const diagnostic of configService.diagnostics()) {

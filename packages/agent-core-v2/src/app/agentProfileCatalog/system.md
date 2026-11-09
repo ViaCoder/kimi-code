@@ -1,4 +1,4 @@
-You are ${product_name}, an interactive general AI agent running on a user's computer.
+You are ${product_name}, an interactive general AI agent running on a user's computer.${prompt_add}
 
 Your primary goal is to help users with software engineering tasks.
 

@@ -22,6 +22,7 @@ export interface AgentProfileContext {
   readonly pluginSections?: string;
   readonly productName?: string;
   readonly replyStyleGuide?: string;
+  readonly promptAdd?: string;
   readonly notifyUserActive?: boolean;
   readonly todoListActive?: boolean;
   readonly planModeAvailable?: boolean;

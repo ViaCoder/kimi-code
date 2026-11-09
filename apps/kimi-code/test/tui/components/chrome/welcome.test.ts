@@ -1,6 +1,10 @@
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import { visibleWidth } from '@moonshot-ai/pi-tui';
 import chalk from 'chalk';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WelcomeComponent } from '#/tui/components/chrome/welcome';
 import { setRainbowDance, type RainbowDanceController } from '#/tui/easter-eggs/dance';
@@ -73,6 +77,7 @@ describe('WelcomeComponent', () => {
   afterEach(() => {
     chalk.level = previousChalkLevel;
     setRainbowDance(undefined);
+    vi.unstubAllEnvs();
   });
 
   it('renders the banner in a single brand color by default', () => {
@@ -119,5 +124,31 @@ describe('WelcomeComponent', () => {
         expect(visibleWidth(line)).toBeLessThanOrEqual(width);
       }
     }
+  });
+
+  it('shows the PROMPT_ADD file and its line count when set', () => {
+    const file = join(mkdtempSync(join(tmpdir(), 'prompt-add-')), 'add.txt');
+    writeFileSync(file, 'one\ntwo\nthree\n');
+    vi.stubEnv('PROMPT_ADD', file);
+
+    const lines = new WelcomeComponent(appState).render(120);
+
+    expect(lines.some((line) => line.includes(`${file} (3 lines)`))).toBe(true);
+  });
+
+  it('flags an unreadable PROMPT_ADD file as not applied', () => {
+    vi.stubEnv('PROMPT_ADD', '/nonexistent/prompt-add.txt');
+
+    const lines = new WelcomeComponent(appState).render(120);
+
+    expect(lines.some((line) => line.includes('not applied'))).toBe(true);
+  });
+
+  it('hides the Prompt+ row when PROMPT_ADD is unset', () => {
+    vi.stubEnv('PROMPT_ADD', '');
+
+    const lines = new WelcomeComponent(appState).render(120);
+
+    expect(lines.some((line) => line.includes('Prompt+'))).toBe(false);
   });
 });

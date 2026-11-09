@@ -46,9 +46,6 @@ import { runPluginNodeEntry } from './sub/plugin-run-node';
 import { runUpdateDownloadCommand } from './sub/update-download';
 import { handleUpgrade } from './sub/upgrade';
 import { createCliTelemetryBootstrap, initializeCliTelemetry } from './telemetry';
-import { runUpdatePreflight } from './update/preflight';
-import { detectNativeInstall } from './update/source';
-import { maybeRelaunchWithStagedNativeUpdate } from './update/native-swap';
 import { createKimiCodeHostIdentity } from './host-identity';
 import { getVersion } from './version';
 
@@ -78,16 +75,6 @@ export async function handleMainCommand(
       process.exit(1);
     }
     throw error;
-  }
-
-  startupTrace('preflight:begin');
-  const preflightResult = await runUpdatePreflight(
-    version,
-    validated.uiMode === 'print' ? { track, isTTY: false } : { track },
-  );
-  startupTrace('preflight:end');
-  if (preflightResult === 'exit') {
-    process.exit(0);
   }
 
   if (validated.uiMode === 'print') {
@@ -170,21 +157,7 @@ const MIGRATE_CLI_OPTIONS: CLIOptions = {
 export function main(): void {
   process.title = PROCESS_NAME;
   installCrashHandlers();
-  // A staged native update is swapped in and re-exec'd here, before any other
-  // initialization, so the user session immediately runs the new binary (and
-  // the old process never replaces itself while running). Every failure path
-  // inside falls back to a normal startup with the current exe.
-  void maybeRelaunchWithStagedNativeUpdate({
-    exePath: process.execPath,
-    argv: process.argv,
-    env: process.env,
-    currentVersion: getVersion(),
-    isNative: detectNativeInstall(),
-  })
-    .catch(() => false)
-    .then((relaunched) => {
-      if (!relaunched) bootstrap();
-    });
+  bootstrap();
 }
 
 function bootstrap(): void {

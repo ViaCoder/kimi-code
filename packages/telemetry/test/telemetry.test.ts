@@ -1091,6 +1091,7 @@ describe('telemetry bootstrap', () => {
     vi.stubGlobal('fetch', fetchImpl);
 
     initializeTelemetry({
+      enabled: true,
       homeDir: await tempHome(),
       deviceId: 'dev',
       appName: 'kimi-code-cli',
@@ -1119,6 +1120,7 @@ describe('telemetry bootstrap', () => {
     vi.stubGlobal('fetch', fetchImpl);
 
     initializeTelemetry({
+      enabled: true,
       homeDir,
       deviceId: 'dev',
       appName: 'kimi-code-cli',
@@ -1139,6 +1141,7 @@ describe('telemetry bootstrap', () => {
 
     track('before_init');
     initializeTelemetry({
+      enabled: true,
       homeDir: await tempHome(),
       deviceId: 'dev',
       sessionId: 'ses',
@@ -1165,6 +1168,7 @@ describe('telemetry bootstrap', () => {
     vi.stubGlobal('fetch', fetchImpl);
 
     initializeTelemetry({
+      enabled: true,
       homeDir: await tempHome(),
       deviceId: 'dev',
       appName: 'kimi-code-cli',
@@ -1184,6 +1188,7 @@ describe('telemetry bootstrap', () => {
     const onUnexpectedError = vi.fn();
 
     initializeTelemetry({
+      enabled: true,
       homeDir: await tempHome(),
       deviceId: 'dev',
       appName: 'kimi-code-cli',
@@ -1202,6 +1207,7 @@ describe('telemetry bootstrap', () => {
     vi.stubGlobal('fetch', fetchImpl);
 
     initializeTelemetry({
+      enabled: true,
       homeDir: await tempHome(),
       deviceId: 'dev',
       appName: 'kimi-code-cli',
@@ -1231,6 +1237,7 @@ describe('telemetry bootstrap', () => {
   it('flushes the singleton synchronously to disk fallback', async () => {
     const homeDir = await tempHome();
     initializeTelemetry({
+      enabled: true,
       homeDir,
       deviceId: 'dev',
       sessionId: 'ses',
@@ -1250,6 +1257,7 @@ describe('telemetry bootstrap', () => {
     vi.useFakeTimers();
     const homeDir = await tempHome();
     initializeTelemetry({
+      enabled: true,
       homeDir,
       deviceId: 'dev',
       sessionId: 'ses',

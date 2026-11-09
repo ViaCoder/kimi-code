@@ -163,6 +163,8 @@ export function systemPromptVars(
   return {
     role_additional: '',
     product_name: context.productName ?? DEFAULT_PRODUCT_NAME,
+    prompt_add:
+      context.promptAdd === undefined ? '' : `\n\n<system>\n${context.promptAdd}\n</system>`,
     reply_style_guide: context.replyStyleGuide ?? DEFAULT_REPLY_STYLE_GUIDE,
     notify_user_guidance: context.notifyUserActive === true ? ` ${NOTIFY_USER_GUIDANCE}` : '',
     todo_list_guidance: todoListGuidance,
